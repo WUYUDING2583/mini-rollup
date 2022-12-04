@@ -1,50 +1,103 @@
-describe("AST Walk函数", () => {
-  test("单个节点", () => {
+const walk = require("../walk");
+
+describe("Test Walk", () => {
+  it("Single Node", () => {
     const ast = {
       a: "1",
     };
-    const mockEnter = jest.fn();
-    const mockLeave = jest.fn();
 
-    const walk = require("../walk");
-    walk(ast, {
-      enter: mockEnter,
-      leave: mockLeave,
-    });
-    let calls = mockEnter.mock.calls;
+    const enter = jest.fn();
+    const leave = jest.fn();
 
+    walk(ast, { enter, leave });
+
+    let calls = enter.mock.calls;
+
+    // Check enter has been called one time
     expect(calls.length).toBe(1);
+    // calls[0] == first time revoke
+    // calls[0][0] == first time revoke arguments
     expect(calls[0][0]).toEqual({ a: "1" });
-    calls = mockLeave.mock.calls;
 
+    calls = leave.mock.calls;
+
+    // Check enter has been called one time
     expect(calls.length).toBe(1);
+    // calls[0] == first time revoke
+    // calls[0][0] == first time revoke arguments
     expect(calls[0][0]).toEqual({ a: "1" });
   });
 
-  test("数组节点", () => {
+  it("Array Node", () => {
     const ast = {
-      a: [{ b: "2" }],
+      a: [
+        {
+          b: 2,
+        },
+      ],
     };
-    const mockEnter = jest.fn();
-    const mockLeave = jest.fn();
 
-    const walk = require("../walk");
-    walk(ast, {
-      enter: mockEnter,
-      leave: mockLeave,
+    const enter = jest.fn();
+    const leave = jest.fn();
+
+    walk(ast, { enter, leave });
+
+    let calls = enter.mock.calls;
+
+    // Check enter has been called one time
+    expect(calls.length).toBe(3);
+    // calls[0] == first time revoke
+    // calls[0][0] == first time revoke arguments
+    expect(calls[0][0]).toEqual({ a: [{ b: 2 }] });
+    expect(calls[1][0]).toEqual([{ b: 2 }]);
+    expect(calls[2][0]).toEqual({ b: 2 });
+
+    calls = leave.mock.calls;
+
+    // Check enter has been called one time
+    expect(calls.length).toBe(3);
+    // calls[0] == first time revoke
+    // calls[0][0] == first time revoke arguments
+    expect(calls[0][0]).toEqual({ b: 2 });
+    expect(calls[1][0]).toEqual([{ b: 2 }]);
+    expect(calls[2][0]).toEqual({ a: [{ b: 2 }] });
+  });
+
+  it("Multi Node", () => {
+    const ast = {
+      a: { b: 1 },
+      c: { d: 2 },
+    };
+
+    const enter = jest.fn();
+    const leave = jest.fn();
+
+    walk(ast, { enter, leave });
+
+    let calls = enter.mock.calls;
+
+    // Check enter has been called one time
+    expect(calls.length).toBe(3);
+    // calls[0] == first time revoke
+    // calls[0][0] == first time revoke arguments
+    expect(calls[0][0]).toEqual({
+      a: { b: 1 },
+      c: { d: 2 },
     });
-    let calls = mockEnter.mock.calls;
+    expect(calls[1][0]).toEqual({ b: 1 });
+    expect(calls[2][0]).toEqual({ d: 2 });
 
+    calls = leave.mock.calls;
+
+    // Check enter has been called one time
     expect(calls.length).toBe(3);
-    expect(calls[0][0]).toEqual({ a: [{ b: "2" }] });
-    expect(calls[1][0]).toEqual([{ b: "2" }]);
-    expect(calls[2][0]).toEqual({ b: "2" });
-
-    calls = mockLeave.mock.calls;
-
-    expect(calls.length).toBe(3);
-    expect(calls[0][0]).toEqual({ b: "2" });
-    expect(calls[1][0]).toEqual([{ b: "2" }]);
-    expect(calls[2][0]).toEqual({ a: [{ b: "2" }] });
+    // calls[0] == first time revoke
+    // calls[0][0] == first time revoke arguments
+    expect(calls[0][0]).toEqual({ b: 1 });
+    expect(calls[1][0]).toEqual({ d: 2 });
+    expect(calls[2][0]).toEqual({
+      a: { b: 1 },
+      c: { d: 2 },
+    });
   });
 });
