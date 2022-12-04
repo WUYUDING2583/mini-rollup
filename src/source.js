@@ -1,8 +1,3 @@
-function a() {
-  let c = 0;
-  function b() {
-    let d = 1;
-  }
-  const f = 3;
-}
-let e = 2;
+const a = () => 1;
+const b = () => 2;
+a();
