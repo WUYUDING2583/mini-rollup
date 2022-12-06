@@ -1,5 +1,5 @@
 class Scope {
-  constructor(options) {
+  constructor(options = {}) {
     this.parent = options.parent;
     this.names = options.names;
   }
