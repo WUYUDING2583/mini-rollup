@@ -69,7 +69,7 @@ class Module {
   }
 
   expandStatement(statement) {
-    // this statement has been referenced
+    // this statement has been included
     statement._included = true;
     const result = [];
     Object.keys(statement._dependsOn).forEach((name) => {
@@ -89,7 +89,7 @@ class Module {
     if (has(this.imports, name)) {
       // TODO load module
     } else {
-      // this module
+      // current module
       const statement = this.definitions[name];
       if (statement) {
         if (statement._included) return [];
