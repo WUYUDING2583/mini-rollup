@@ -1,20 +1,20 @@
-const Scope = require("./scope");
 const walk = require("./walk");
+const Scope = require("./scope");
 
 /**
- * Analyse function
+ * 分析函数
  * @param {*} ast
- * @param {MagicString} magicString
+ * @param {*} magicString
  * @param {*} module
  */
-function analyse(ast, magicString, module) {
-  // create global scope
-  let scope = new Scope({});
+module.exports = function analyse(ast, magicString, module) {
+  // 全局作用域
+  let scope = new Scope();
 
   ast.body.forEach((statement) => {
     /**
-     * Add variable to scope
-     * @param {*} declaration declaration node
+     * 给作用域添加变量
+     * @param {*} declaration 声明节点
      */
     function addToScope(declaration) {
       const name = declaration.id.name;
@@ -27,17 +27,26 @@ function analyse(ast, magicString, module) {
     Object.defineProperties(statement, {
       _defines: { value: {} },
       _dependsOn: { value: {} },
+      _included: { value: false, writable: true },
+      _source: { value: magicString.snip(statement.start, statement.end) },
     });
+
     walk(statement, {
       enter(node) {
         let newScope;
         switch (node.type) {
+          // 函数声明
           case "FunctionDeclaration":
-            // Add to scope
+            // 加入到作用域
             addToScope(node);
-            // Create new Scope
             const params = node.params.map((v) => v.name);
-            newScope = new Scope({ parent: scope, params });
+
+            // 创建新的作用域
+            newScope = new Scope({
+              parent: scope,
+              params,
+            });
+
             break;
           case "VariableDeclaration":
             node.declarations.forEach(addToScope);
@@ -45,6 +54,7 @@ function analyse(ast, magicString, module) {
           default:
             break;
         }
+
         if (newScope) {
           Object.defineProperties(node, {
             _scope: { value: newScope },
@@ -52,6 +62,7 @@ function analyse(ast, magicString, module) {
           scope = newScope;
         }
       },
+
       leave(node) {
         if (node._scope) {
           scope = scope.parent;
@@ -71,5 +82,4 @@ function analyse(ast, magicString, module) {
       },
     });
   });
-}
-module.exports = analyse;
+};
