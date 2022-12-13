@@ -27,6 +27,7 @@ function analyse(ast, magicString, module) {
     Object.defineProperties(statement, {
       _defines: { value: {} },
       _dependsOn: { value: {} },
+      _included: { value: false, writable: true },
     });
     walk(statement, {
       enter(node) {
