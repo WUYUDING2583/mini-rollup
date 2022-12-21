@@ -28,6 +28,9 @@ function analyse(ast, magicString, module) {
       _defines: { value: {} },
       _dependsOn: { value: {} },
       _included: { value: false, writable: true },
+      _source: {
+        value: magicString.snip(statement.start, statement.end),
+      },
     });
     walk(statement, {
       enter(node) {
